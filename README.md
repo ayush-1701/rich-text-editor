@@ -1,75 +1,48 @@
-# React + TypeScript + Vite
+# Rich-text editor core
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A rich-text editor where the document model is the single source of truth and
+the DOM is only a projection of it. React 18 + TypeScript in full strict mode.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # 127 tests
+npm run typecheck  # strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## What to look at
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| | |
+|---|---|
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Data structure, the DOM ↔ model reconciliation loop, and how I would handle IME and rich paste in production. |
+| [`DECISIONS.md`](./DECISIONS.md) | Mark boundary rules (R4) and history coalescing rules (R5), each tied to the test that enforces it. |
+| `src/model/` | The whole editor. Pure functions over plain data — no DOM, no React. |
+| `src/dom/domSelection.ts` | The only file that knows the DOM exists. Positions only, never content. |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The panel on the right is the live document model, serialized. It is a readout
+by default — the block holding the caret is highlighted there and marked in the
+writing surface at the same time, so you can watch an edit land in the model.
+**Edit** turns it into an input; **Load JSON** reconstructs the document from
+whatever you paste, which is R1 demonstrated rather than asserted.
 
-```
+## Try these
+
+- Select a range that is only partly bold and press **B** twice.
+- Press **B** with nothing selected, then type. Then press **B**, click
+  elsewhere, and type.
+- Type at the very end of the link in the sample text.
+- Type `hello world` and press undo twice.
+- Put the caret in the middle of a link and press **Unlink**.
+- Select across two paragraphs and press **B**, then undo.
+- Paste a document into **Edit → Load JSON**, and try a malformed one.
+
+## Shortcuts
+
+`Ctrl/Cmd+B` bold · `Ctrl/Cmd+I` italic · `Ctrl/Cmd+K` link ·
+`Ctrl/Cmd+Z` undo · `Ctrl/Cmd+Shift+Z` redo
+
+## Scope
+
+Per the brief, IME composition and rich HTML paste are not implemented. Both are
+analysed in `ARCHITECTURE.md` under "Known limits, and how I would close them".
