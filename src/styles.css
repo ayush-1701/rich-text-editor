@@ -452,9 +452,38 @@ body {
 }
 
 .json-line {
+  position: relative;
   display: block;
-  padding: 0 12px 0 10px;
+  padding: 0 12px 0 26px;
   border-left: 2px solid transparent;
+}
+
+/* Fold control: one per top-level block, sitting in the line's own gutter
+   space so collapsing/expanding never reflows surrounding lines. */
+.fold-toggle {
+  position: absolute;
+  top: 0.15em;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.fold-toggle:hover {
+  background: var(--signal-tint);
+  color: var(--signal);
+}
+
+.json-line-folded {
+  font-style: italic;
 }
 
 /* The other half of the signature. */

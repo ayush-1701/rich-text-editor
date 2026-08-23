@@ -20,7 +20,7 @@ interface EditorProps {
   state: EditorState;
   dispatch: Dispatch<EditorAction>;
   /** Owned by the app shell so other panels can hand focus back to the writer. */
-  surfaceRef: RefObject<HTMLDivElement>;
+  surfaceRef: RefObject<HTMLDivElement | null>;
   activeBlockId: string | null;
 }
 
